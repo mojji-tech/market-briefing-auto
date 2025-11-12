@@ -200,3 +200,55 @@ with open("docs/index.html", "w", encoding="utf-8") as f:
     f.write(html)
 
 print("✅ report.txt, docs/index.html 저장 완료")
+
+html = f"""<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>전일 종가 브리핑</title>
+<style>
+  body {{
+    font-family: 'Pretendard', 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
+    background: #f9fafc;
+    color: #222;
+    padding: 2rem;
+    line-height: 1.5;
+  }}
+  h2 {{
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+  }}
+  table {{
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5rem 0;
+    background: white;
+  }}
+  th, td {{
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }}
+  th {{
+    background: #3498db;
+    color: white;
+  }}
+  tr:nth-child(even) {{ background-color: #f2f2f2; }}
+  tr:hover {{ background-color: #eaf2fb; }}
+  .pos {{ color: #d63031; font-weight: bold; }}   /* 상승 */
+  .neg {{ color: #0984e3; font-weight: bold; }}   /* 하락 */
+  a {{ color: #3498db; text-decoration: none; }}
+  a:hover {{ text-decoration: underline; }}
+  footer {{
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #555;
+  }}
+</style>
+<h2>전일 종가 브리핑</h2>
+<pre style="white-space: pre-wrap;">{report_text}</pre>
+<footer>
+  ⏰ 자동 생성 시각: {datetime.now().strftime("%Y-%m-%d %H:%M")} KST<br>
+  📈 출처: Yahoo Finance / CNN Fear & Greed Index
+</footer>
+</html>"""
