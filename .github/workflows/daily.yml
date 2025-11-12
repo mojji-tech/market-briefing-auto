@@ -2,37 +2,12 @@ name: Daily Market Briefing
 
 on:
   schedule:
-    - cron: '0 23 * * *'   # UTC 23시 = KST 08시
-  workflow_dispatch:        # 수동 실행 버튼도 추가
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - cron: '0 23 * * *'   # 매일 08:00 KST (UTC 23:00)
+  workflow_dispatch:        # 수동 실행 버튼
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install yfinance pandas numpy
-
-      - name: Run Colab script
-        run: |
-          python market_briefing.py
-
-name: Daily Market Briefing
-
-on:
-  schedule:
-    - cron: '0 23 * * *'   # UTC 23시 = KST 08시
-  workflow_dispatch:
-
+# ⬇️ repo에 결과 파일을 푸시하려면 필요
 permissions:
-  contents: write   # ← 푸시하려면 필요
+  contents: write
 
 jobs:
   run:
@@ -46,19 +21,27 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install dependencies (pin)
         run: |
-          pip install yfinance pandas numpy
+          pip install "yfinance==0.2.50" "pandas==2.2.2" "numpy==2.0.2"
 
-      - name: Run market script
+      - name: Run market briefing script
         run: |
           python market_briefing.py
 
-      # ▼▼▼ 새로 추가 ▼▼▼
-      - name: Commit & push report files
+      # (A) 결과물을 repo에 커밋/푸시 — 링크 공유하기 쉬움
+      - name: Commit & push report
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add output/ docs/
-          git commit -m "auto: update market reports" || echo "no changes"
+          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions"
+          git add -A
+          git commit -m "auto: daily market report" || echo "no changes"
           git push
+
+      # (B) 아티팩트로도 보관 (백업 용) — 필요 없으면 이 블록 삭제 가능
+      - name: Upload artifact (report)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-report
+          path: output/**
