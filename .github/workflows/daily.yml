@@ -23,3 +23,42 @@ jobs:
       - name: Run Colab script
         run: |
           python market_briefing.py
+
+name: Daily Market Briefing
+
+on:
+  schedule:
+    - cron: '0 23 * * *'   # UTC 23시 = KST 08시
+  workflow_dispatch:
+
+permissions:
+  contents: write   # ← 푸시하려면 필요
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas numpy
+
+      - name: Run market script
+        run: |
+          python market_briefing.py
+
+      # ▼▼▼ 새로 추가 ▼▼▼
+      - name: Commit & push report files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add output/ docs/
+          git commit -m "auto: update market reports" || echo "no changes"
+          git push
