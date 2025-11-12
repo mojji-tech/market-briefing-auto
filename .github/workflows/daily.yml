@@ -5,13 +5,22 @@ on:
     - cron: '0 23 * * *'   # 매일 08:00 KST (UTC 23:00)
   workflow_dispatch:        # 수동 실행 버튼
 
-# ⬇️ repo에 결과 파일을 푸시하려면 필요
+# repo에 푸시하려면 필요
 permissions:
   contents: write
+
+# 동시에 두 번 돌지 않도록
+concurrency:
+  group: daily-market-briefing
+  cancel-in-progress: true
+
+env:
+  TZ: Asia/Seoul
 
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,27 +30,39 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies (pin)
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 필요시 requirements.txt 사용 가능. 없으면 아래 설치 실행.
+      - name: Install dependencies (pinned)
         run: |
+          python -m pip install --upgrade pip
           pip install "yfinance==0.2.50" "pandas==2.2.2" "numpy==2.0.2"
 
       - name: Run market briefing script
         run: |
           python market_briefing.py
 
-      # (A) 결과물을 repo에 커밋/푸시 — 링크 공유하기 쉬움
+      # (A) 결과물을 repo에 커밋/푸시 (docs/index.html, output/** 등)
       - name: Commit & push report
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "github-actions"
           git add -A
-          git commit -m "auto: daily market report" || echo "no changes"
+          git commit -m "auto: daily market report" || echo "no changes to commit"
           git push
 
-      # (B) 아티팩트로도 보관 (백업 용) — 필요 없으면 이 블록 삭제 가능
+      # (B) 아티팩트로도 백업 (선택, 필요 없으면 이 블록 삭제)
       - name: Upload artifact (report)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: market-report
-          path: output/**
+          path: |
+            output/**
+            docs/index.html
