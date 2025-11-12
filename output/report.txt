@@ -1,4 +1,94 @@
-전일 종가 브리핑 생성시각: 2025-11-12 07:08 KST
+전일 종가 브리핑 (생성시각: 2025-11-12 16:57 KST)
 
+===== 1) 미국 3대 지수 =====
+Ticker      Name Price Change Change % Price_KRW
+ ^GSPC   S&P 500                                
+ ^IXIC    Nasdaq                                
+  ^DJI Dow Jones                                
 
-9) CNN Fear & Greed Index: https://money.cnn.com/data/fear-and-greed/
+===== 2) 글로벌 주요 지수 =====
+   Ticker               Name Price Change Change % Price_KRW
+    ^N225         Nikkei 225                                
+    ^KS11              KOSPI                                
+000001.SS Shanghai Composite                                
+     ^HSI          Hang Seng                                
+   ^GDAXI                DAX                                
+    ^FTSE           FTSE 100                                
+
+===== 3) ETF 종합 - (T1) 미국/섹터 (B 라벨) =====
+Ticker                                Name Price Change Change % Price_KRW
+   SPY              S&P500 / 미국 대형주 / 전체시장                                
+   QQQ Nasdaq100 / 빅테크 중심 / AAPL·MSFT·NVDA                                
+   IWM                 러셀2000 / 스몰캡 / 경기민감                                
+   DIA                 다우30 / 안정 대형주 / 블루칩                                
+   XLK        IT 섹터 / 성장주 / AAPL·MSFT·AVGO                                
+   XLF             금융 / 은행·보험 / JPM·BAC·GS                                
+   XLV          헬스케어 / 제약·의료 / UNH·LLY·JNJ                                
+   XLE           에너지 / 정유·가스 / XOM·CVX·SLB                                
+   XLI            산업재 / 제조·운송 / CAT·GE·HON                                
+   XLB                소재 / 화학·금속 / LIN·SHW                                
+   XLY        임의소비재 / 소비경기 / AMZN·TSLA·NKE                                
+   XLU                 유틸리티 / 방어 / NEE·DUK                                
+  XLRE             리츠 / 상업·데이터센터 / PLD·AMT                                
+   XLC        커뮤니케이션 / 플랫폼·광고 / GOOGL·META                                
+   TLT                미국 장기채 / 금리민감 / 20년+                                
+   HYG                   하이일드 채권 / 위험선호 지표                                
+
+===== 3) ETF 종합 - (T2) 글로벌/EM =====
+Ticker              Name Price Change Change % Price_KRW
+   EEM      신흥국 / 광범위 EM                                
+   EWY    한국 / KOSPI 대형주                                
+   EWJ       일본 / 니케이 구성                                
+   EFA 선진국 ex-US / 유럽+일본                                
+   VWO     신흥국 / FTSE EM                                
+   FXI    중국 대형주 / 홍콩 상장                                
+  ASHR      중국 A주 / 본토시장                                
+   EWZ 브라질 / Bovespa 대형주                                
+  INDA   인도 / Nifty50 기반                                
+
+===== 4) 섹터 성과 요약 (미국) =====
+Ticker                       Sector Change %
+   XLK IT 섹터 / 성장주 / AAPL·MSFT·AVGO         
+   XLF      금융 / 은행·보험 / JPM·BAC·GS         
+   XLV   헬스케어 / 제약·의료 / UNH·LLY·JNJ         
+   XLE    에너지 / 정유·가스 / XOM·CVX·SLB         
+   XLI     산업재 / 제조·운송 / CAT·GE·HON         
+   XLB         소재 / 화학·금속 / LIN·SHW         
+   XLY 임의소비재 / 소비경기 / AMZN·TSLA·NKE         
+   XLU          유틸리티 / 방어 / NEE·DUK         
+  XLRE      리츠 / 상업·데이터센터 / PLD·AMT         
+   XLC 커뮤니케이션 / 플랫폼·광고 / GOOGL·META         
+
+===== 5) 메가캡(개별주) =====
+Ticker Price Change Change % Price_KRW
+  AAPL                                
+  MSFT                                
+  NVDA                                
+  AMZN                                
+ GOOGL                                
+  META                                
+  TSLA                                
+
+===== 6) 환율 =====
+  Ticker            Name Price Change Change %
+   KRW=X         USD/KRW                      
+   JPY=X         USD/JPY                      
+EURUSD=X         EUR/USD                      
+DX-Y.NYB US Dollar Index                      
+
+===== 6) 금리 =====
+Ticker                Name Yield Change Change %
+  ^IRX US 13W T-Bill (≈3M)                      
+  ^FVX               US 5Y                      
+  ^TNX              US 10Y                      
+  ^TYX              US 30Y                      
+ ^MOVE     MOVE (Bond Vol)                      
+
+===== 6) 원자재 =====
+ Ticker         Name Price Change Change % Price_KRW
+   CL=F    WTI Crude                                
+   BZ=F  Brent Crude                                
+   GC=F Gold Futures                                
+BTC-USD      Bitcoin                                
+
+9) CNN Fear & Greed Index → https://money.cnn.com/data/fear-and-greed/
