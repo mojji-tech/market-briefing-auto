@@ -147,3 +147,56 @@ with open("README.md","w",encoding="utf-8") as f:
     f.write(f"# 전일 종가 브리핑 (생성시각: {ts})\n\n")
     f.write("CNN Fear & Greed Index → https://money.cnn.com/data/fear-and-greed/\n\n")
     f.write("CSV 파일: us_indices / global_indices / etf_us_t1 / etf_global_t2 / sector_perf / megacaps / fx / rates / commodities\n")
+
+from datetime import datetime
+import os
+
+# ① 리포트 본문 만들기 (너가 가진 표/문구를 이어 붙여 문자열로 만들면 더 좋아요)
+#    일단 안전하게 로그 텍스트라도 남기자:
+now = datetime.now().strftime("%Y-%m-%d %H:%M KST")
+report_text = f"전일 종가 브리핑 생성시각: {now}\n\n"
+
+# 예: 이미 만든 데이터프레임이 있다면 to_string으로 붙여도 됨
+def safe_df_to_text(name, df):
+    try:
+        return f"===== {name} =====\n{df.to_string(index=False)}\n\n"
+    except Exception:
+        return f"===== {name} =====\n(표 변환 실패)\n\n"
+
+try:
+    report_text += safe_df_to_text("1) 미국 3대 지수", us_indices_df)
+    report_text += safe_df_to_text("2) 글로벌 주요 지수", global_indices_df)
+    report_text += safe_df_to_text("3) ETF T1 (미국/섹터)", us_etf_df)
+    report_text += safe_df_to_text("3) ETF T2 (글로벌/EM)", global_etf_df)
+    report_text += safe_df_to_text("4) 섹터 성과 요약", sector_df)
+    report_text += safe_df_to_text("5) 메가캡", mega_df)
+    report_text += safe_df_to_text("6) 환율", fx_df)
+    report_text += safe_df_to_text("6) 금리", rates_df)
+    report_text += safe_df_to_text("6) 원자재", cmd_df)
+except NameError:
+    # 변수명이 다르면 여기서 그냥 넘어가도 됨
+    pass
+
+report_text += "\n9) CNN Fear & Greed Index: https://money.cnn.com/data/fear-and-greed/\n"
+
+# ② 저장 경로 만들기
+os.makedirs("output", exist_ok=True)
+os.makedirs("docs", exist_ok=True)
+
+# ③ 텍스트 리포트 저장
+with open("output/report.txt", "w", encoding="utf-8") as f:
+    f.write(report_text)
+
+# ④ 간단한 HTML도 저장 (GitHub Pages용)
+html = f"""<!doctype html>
+<html lang="ko"><meta charset="utf-8">
+<title>전일 종가 브리핑</title>
+<h2>전일 종가 브리핑</h2>
+<pre style="white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;">
+{report_text}
+</pre>
+</html>"""
+with open("docs/index.html", "w", encoding="utf-8") as f:
+    f.write(html)
+
+print("✅ report.txt, docs/index.html 저장 완료")
