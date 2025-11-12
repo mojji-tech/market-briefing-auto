@@ -162,70 +162,81 @@ for name,df in tables.items():
         if c=="Price_KRW": df_out[c] = df_out[c].apply(fmt_int)
     df_out.to_csv(f"out_{name}.csv", index=False, encoding="utf-8-sig")
 
-import re, os
+# ==== 본문(텍스트) 만들기 ====
 from datetime import datetime
+import os, re
 
-# === 리포트 본문 만들기 ===
-now = datetime.now().strftime("%Y-%m-%d %H:%M KST")
-report_text = f"전일 종가 브리핑 생성시각: {now}\n\n"
+def df_to_pretty_text(df, name):
+    # 숫자 포맷 적용해서 문자열 변환
+    d = df.copy()
+    for c in d.columns:
+        if c in ("Price","Change","Yield"):
+            d[c] = d[c].apply(lambda x: "" if pd.isna(x) else f"{x:,.1f}")
+        elif c == "Change %":
+            d[c] = d[c].apply(lambda x: "" if pd.isna(x) else f"{x:+.1f}%")
+        elif c == "Price_KRW":
+            d[c] = d[c].apply(lambda x: "" if pd.isna(x) else f"{int(round(x)):,.0f}")
+    return f"===== {name} =====\n{d.to_string(index=False)}\n\n"
 
-def safe_df_to_text(title, df):
-    try:
-        return f"===== {title} =====\n{df.to_string(index=False)}\n\n"
-    except Exception as e:
-        return f"===== {title} =====\n(표 변환 실패: {e})\n\n"
+now_str = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
+sections = [
+    ("1) 미국 3대 지수",   us_df),
+    ("2) 글로벌 주요 지수", g_df),
+    ("3) ETF T1 (미국/섹터)", t1_df),
+    ("3) ETF T2 (글로벌/EM)", t2_df),
+    ("4) 섹터 성과 요약",  sector_df),
+    ("5) 메가캡",         mega_df),
+    ("6) 환율",           fx_df),
+    ("6) 금리",           rates_df),
+    ("6) 원자재",         cmd_df),
+]
 
-# ✅ 실제 존재하는 DF 이름으로 정확히 붙이기
-report_text += safe_df_to_text("1) 미국 3대 지수", us_df)
-report_text += safe_df_to_text("2) 글로벌 주요 지수", g_df)
-report_text += safe_df_to_text("3) ETF T1 (미국/섹터)", t1_df)
-report_text += safe_df_to_text("3) ETF T2 (글로벌/EM)", t2_df)
-report_text += safe_df_to_text("4) 섹터 성과 요약", sector_df)
-report_text += safe_df_to_text("5) 메가캡", mega_df)
-report_text += safe_df_to_text("6) 환율", fx_df)
-report_text += safe_df_to_text("6) 금리", rates_df)
-report_text += safe_df_to_text("6) 원자재", cmd_df)
-report_text += "\n9) CNN Fear & Greed Index → https://money.cnn.com/data/fear-and-greed/\n"
+report_text = f"전일 종가 브리핑 생성시각: {now_str}\n\n"
+for title, df in sections:
+    # 여기서 오류 숨기지 말고 드러내자
+    if df is None or df.empty:
+        report_text += f"===== {title} =====\n(데이터 없음)\n\n"
+    else:
+        report_text += df_to_pretty_text(df, title)
 
-# 디렉토리
+report_text += "9) CNN Fear & Greed Index → https://money.cnn.com/data/fear-and-greed/\n"
+
+# ==== 하이라이팅 ====
+def highlight_changes(text):
+    text = re.sub(r'(\+\d+(\.\d+)?%)', r'<span class="pos">\1</span>', text)  # 상승(빨강)
+    text = re.sub(r'(-\d+(\.\d+)?%)', r'<span class="neg">\1</span>', text)  # 하락(파랑)
+    return text
+
+highlighted = highlight_changes(report_text)
+
+# ==== 저장 ====
 os.makedirs("output", exist_ok=True)
 os.makedirs("docs", exist_ok=True)
 
-# === 하이라이팅 ===
-def highlight_changes(text):
-    text = re.sub(r'(\+\d+(\.\d+)?%)', r'<span class="pos">\1</span>', text)  # 상승
-    text = re.sub(r'(-\d+(\.\d+)?%)', r'<span class="neg">\1</span>', text)  # 하락
-    return text
+with open("output/report.txt","w",encoding="utf-8") as f:
+    f.write(report_text)
 
-highlighted_report = highlight_changes(report_text)
-
-# === HTML 저장 ===
 html = f"""<!doctype html>
 <html lang="ko">
 <meta charset="utf-8">
 <title>전일 종가 브리핑</title>
 <style>
-  body {{
-    font-family: 'Pretendard','Segoe UI','Helvetica','Arial',sans-serif;
-    background:#f9fafc; color:#222; padding:2rem; line-height:1.5;
-  }}
+  body {{ font-family: 'Pretendard','Segoe UI','Helvetica','Arial',sans-serif; background:#f9fafc; color:#222; padding:2rem; line-height:1.5; }}
   h2 {{ color:#2c3e50; border-bottom:2px solid #3498db; padding-bottom:.5rem; }}
-  pre {{ font-family:'JetBrains Mono','Consolas',monospace; font-size:.9rem; white-space:pre-wrap; }}
+  pre {{ white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.95rem; }}
   .pos {{ color:#d63031; font-weight:bold; }}
   .neg {{ color:#0984e3; font-weight:bold; }}
-  footer {{ margin-top:2rem; font-size:.9rem; color:#555; }}
+  footer {{ margin-top:1.5rem; font-size:.9rem; color:#555; }}
 </style>
 <h2>전일 종가 브리핑</h2>
-<pre>{highlighted_report}</pre>
+<pre>{highlighted}</pre>
 <footer>
-  ⏰ 자동 생성 시각: {datetime.now().strftime("%Y-%m-%d %H:%M")} KST<br>
+  ⏰ 자동 생성 시각: {datetime.now(KST).strftime("%Y-%m-%d %H:%M")} KST<br>
   📈 출처: Yahoo Finance / CNN Fear & Greed Index
 </footer>
 </html>"""
 
-with open("output/report.txt", "w", encoding="utf-8") as f:
-    f.write(report_text)
-with open("docs/index.html", "w", encoding="utf-8") as f:
+with open("docs/index.html","w",encoding="utf-8") as f:
     f.write(html)
 
-print("✅ report.txt, docs/index.html 저장 완료 (표+하이라이트 반영)")
+print("✅ report.txt, docs/index.html 저장 완료")
