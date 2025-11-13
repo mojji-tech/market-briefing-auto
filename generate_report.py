@@ -5,24 +5,31 @@ from datetime import datetime, timezone, timedelta
 import numpy as np
 import pandas as pd
 import yfinance as yf
+DEBUG_LOG = []
 
 # ===== 공통 설정 =====
 KST = timezone(timedelta(hours=9))
 
 
-def last_two_closes(ticker: str):
+def last_two_closes(ticker):
     t = yf.Ticker(ticker)
-    hist = t.history(period="15d", interval="1d", auto_adjust=False)
-
-    if hist.empty or "Close" not in hist.columns:
+    try:
+        hist = t.history(period="15d", interval="1d", auto_adjust=False)
+        if hist.empty or "Close" not in hist.columns:
+            DEBUG_LOG.append(f"[WARN] {ticker}: history empty (len={len(hist)})")
+            return np.nan, np.nan
+        closes = hist["Close"].dropna()
+        if len(closes)==0:
+            DEBUG_LOG.append(f"[WARN] {ticker}: closes len=0")
+            return np.nan, np.nan
+        if len(closes)==1:
+            DEBUG_LOG.append(f"[INFO] {ticker}: closes len=1, last={closes.iloc[-1]}")
+            return closes.iloc[-1], np.nan
+        DEBUG_LOG.append(f"[OK] {ticker}: last={closes.iloc[-1]}, prev={closes.iloc[-2]}")
+        return closes.iloc[-1], closes.iloc[-2]
+    except Exception as e:
+        DEBUG_LOG.append(f"[ERR] {ticker}: {e}")
         return np.nan, np.nan
-
-    closes = hist["Close"].dropna()
-    if len(closes) == 0:
-        return np.nan, np.nan
-    if len(closes) == 1:
-        return closes.iloc[-1], np.nan
-    return closes.iloc[-1], closes.iloc[-2]
 
 
 def px_chg_pct(ticker: str):
@@ -287,6 +294,20 @@ def highlight_changes(text: str) -> str:
 
 highlighted_report = highlight_changes(report_text)
 
+import re
+
+def highlight_changes(text):
+    text = re.sub(r'(\+\d+(\.\d+)?%)', r'<span class="pos">\1</span>', text)
+    text = re.sub(r'(-\d+(\.\d+)?%)', r'<span class="neg">\1</span>', text)
+    return text
+
+highlighted_report = highlight_changes(report_text)
+
+# 🔽 여기부터 디버그 텍스트 추가
+debug_block = ""
+if DEBUG_LOG:
+    debug_block = "\n\n--- DEBUG ---\n" + "\n".join(DEBUG_LOG) + "\n"
+
 html = f"""<!doctype html>
 <html lang="ko">
 <meta charset="utf-8">
@@ -305,11 +326,7 @@ html = f"""<!doctype html>
     padding-bottom: 0.5rem;
   }}
   pre {{
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    border: 1px solid #dde3f0;
-    overflow-x: auto;
+    white-space: pre-wrap;
   }}
   .pos {{ color: #d63031; font-weight: bold; }}
   .neg {{ color: #0984e3; font-weight: bold; }}
@@ -320,13 +337,17 @@ html = f"""<!doctype html>
   }}
 </style>
 <h2>전일 종가 브리핑</h2>
-<pre>{highlighted_report}</pre>
+<pre>{highlighted_report}{debug_block}</pre>
 <footer>
-  ⏰ 자동 생성 시각: {now_str}<br>
+  ⏰ 자동 생성 시각: {datetime.now().strftime("%Y-%m-%d %H:%M")} KST<br>
   📈 출처: Yahoo Finance / CNN Fear & Greed Index
 </footer>
-</html>
-"""
+</html>"""
+
+with open("docs/index.html", "w", encoding="utf-8") as f:
+    f.write(html)
+
+print("✅ report.txt, docs/index.html 저장 완료")
 
 # ===== 9) 저장 =====
 os.makedirs("output", exist_ok=True)
