@@ -14,9 +14,6 @@ concurrency:
   group: daily-market-briefing
   cancel-in-progress: true
 
-env:
-  TZ: Asia/Seoul
-
 jobs:
   build:
     runs-on: ubuntu-latest
