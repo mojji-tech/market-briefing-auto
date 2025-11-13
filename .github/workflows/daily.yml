@@ -34,7 +34,7 @@ jobs:
 
       - name: Run generator
         run: |
-          python market_briefing.py
+          python generate_report.py
 
       - name: Commit & push
         run: |
