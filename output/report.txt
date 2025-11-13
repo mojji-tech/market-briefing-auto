@@ -1,4 +1,5 @@
-전일 종가 브리핑 생성시각: 2025-11-13 11:48 KST
+전일 종가 브리핑 생성시각: 2025-11-13 13:08 KST
+
 
 ===== 1) 미국 3대 지수 =====
 Ticker      Name Price Change Change % Price_KRW
