@@ -5,8 +5,21 @@
 # - B 라벨, 하이라이팅(+% 빨강 / -% 파랑)
 # - docs/index.html + output/report.txt 생성
 
-import yfinance as yf, pandas as pd, numpy as np, re, os
+import yfinance as yf, pandas as pd, numpy as np
 from datetime import datetime, timezone, timedelta
+KST = timezone(timedelta(hours=9))
+
+# === 디버그: 깃허브 액션에서 야후 데이터 실제로 들어오는지 체크 ===
+print("=== DEBUG: yfinance test (^GSPC) ===")
+try:
+    test = yf.download("^GSPC", period="5d", interval="1d", auto_adjust=False)
+    print("DEBUG rows:", len(test))
+    print("DEBUG head:")
+    print(test.head())
+except Exception as e:
+    print("DEBUG ERROR while downloading ^GSPC:", e)
+print("=== END DEBUG ===")
+# === 디버그 끝 ===
 
 # ----- 기본 설정 -----
 KST = timezone(timedelta(hours=9))
