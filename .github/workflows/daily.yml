@@ -18,35 +18,34 @@ env:
   TZ: Asia/Seoul
 
 jobs:
-  run:
+  build:
     runs-on: ubuntu-latest
-
+    env:
+      TZ: Asia/Seoul
+      PYTHONUNBUFFERED: "1"
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.11"
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      # 필요시 requirements.txt 사용 가능. 없으면 아래 설치 실행.
-      - name: Install dependencies (pinned)
+      - name: Install deps (pinned)
         run: |
           python -m pip install --upgrade pip
-          pip install "yfinance==0.2.50" "pandas==2.2.2" "numpy==2.0.2"
+          pip install "yfinance==0.2.43" "pandas==2.2.2" "numpy==2.1.3" "requests>=2.31" "pytz"
 
-      - name: Run market briefing script
+      - name: Run generator
         run: |
-          python market_briefing.py
+          python generate_report.py
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Auto: update report" || echo "no changes"
+          git push
 
       # (A) 결과물을 repo에 커밋/푸시 (docs/index.html, output/** 등)
       - name: Commit & push report
